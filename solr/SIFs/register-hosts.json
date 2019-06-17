@@ -1,0 +1,33 @@
+{
+    "Parameters": {
+        "HostMappingName": {
+            "Type": "string",
+            "Description": "The host name of the site."
+        }
+    },
+    "Register": {
+        "Tasks": {
+            "RemoveItem": "Remove-Item"
+        }
+    },
+    "Tasks": {
+        "CreateHostHeader": {
+            "Description": "Sets a hostheader for the website.",
+            "Type": "HostHeader",
+            "Params": {
+                "HostName": "[parameter('HostMappingName')]"
+            },
+            "Skip": "[not(parameter('HostMappingName'))]"
+        }
+    },
+    "UninstallTasks": {
+        "RemoveHostHeader": {
+            "Description": "Removes the hostheader for the website.",
+            "Type": "HostHeader",
+            "Params": {
+                "HostName": "[parameter('HostMappingName')]",
+                "Action": "Remove"
+            }
+        }
+    }
+}
