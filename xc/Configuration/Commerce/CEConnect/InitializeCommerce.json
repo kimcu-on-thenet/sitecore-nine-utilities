@@ -1,0 +1,102 @@
+﻿{
+  "Parameters": {
+    "EngineConnectIncludeDir": {
+      "Type": "string",
+      "Description": "The path to the Engine Connect App_Confign directory"
+    },
+    "CommerceInstallRoot": {
+      "Type": "string",
+      "Description": "The root path of commerce services."
+    },
+    "CommerceEngineCertificateName": {
+      "Type": "string",
+      "Description": "The Commerce Engine certificate name for communication between Engine and Storefront."
+    },
+    "CommerceServicesPostfix": {
+      "Type": "string",
+      "Description": "The Commerce Engine postfix for services names"
+    },
+    "CommerceAuthoringServicesPort": {
+      "Type": "string",
+      "Description": "Commerce Authoring Services port"
+    },
+    "CommerceServicesHostPostfix": {
+      "Type": "string",
+      "DefaultValue": "",
+      "Description": "The postfix for Commerce Engine services host names"
+    },
+    "CommerceAuthoringServiceName": {
+      "Type": "string",
+      "DefaultValue": "",
+      "Description": "The Commerce Authoring service name"
+    },
+    "CommerceOpsServiceName": {
+      "Type": "string",
+      "DefaultValue": "",
+      "Description": "The Commerce Ops service name"
+    },
+    "CommerceShopsServiceName": {
+      "Type": "string",
+      "DefaultValue": "",
+      "Description": "The Commerce Shops service name"
+    },
+    "CommerceMinionsServiceName": {
+      "Type": "string",
+      "DefaultValue": "",
+      "Description": "The Commerce Minions service name"
+    },
+    "CommerceAuthoringServiceUrl": {
+      "Type": "string",
+      "DefaultValue": "",
+      "Description": "The Url of Commerce Authoring service"
+    }
+  },
+  "Variables": {
+    "CommerceOps": "[parameter('CommerceOpsServiceName')]",
+    "CommerceShops": "[parameter('CommerceShopsServiceName')]",
+    "CommerceAuthoring": "[parameter('CommerceAuthoringServiceName')]",
+    "CommerceMinions": "[parameter('CommerceMinionsServiceName')]",
+    "CommerceOpsPhysicalPath": "[joinpath(parameter('CommerceInstallRoot'),  variable('CommerceOps'))]",
+    "CommerceShopsPhysicalPath": "[joinpath(parameter('CommerceInstallRoot'),  variable('CommerceShops'))]",
+    "CommerceAuthoringPhysicalPath": "[joinpath(parameter('CommerceInstallRoot'),  variable('CommerceAuthoring'))]",
+    "CommerceMinionsPhysicalPath": "[joinpath(parameter('CommerceInstallRoot'),  variable('CommerceMinions'))]",
+    "Client.Cert.Store": "cert:\\LocalMachine\\My",
+    "Engine.Certificate": "[concat('*.', parameter('CommerceServicesHostPostfix'))]",
+    //"Security.CertificateThumbprint": "[GetCertificateThumbprint(variable('Engine.Certificate'), variable('Client.Cert.Store'))]"
+    "Security.CertificateThumbprint": "[GetCertificateThumbprint(parameter('CommerceEngineCertificateName'), variable('Client.Cert.Store'))]"
+    
+  },
+  "Modules": ["InitializeCommerce"],
+  "Tasks": {
+    "ApplyCertificate": {
+      "Type": "ApplyCertificate",
+      "Params": {
+        "EngineConnectIncludeDir": "[parameter('EngineConnectIncludeDir')]",
+        "CertificateThumbprint": "[variable('Security.CertificateThumbprint')]",
+        "CommerceServicesPathCollection": [
+          "[variable('CommerceOpsPhysicalPath')]",
+          "[variable('CommerceShopsPhysicalPath')]",
+          "[variable('CommerceAuthoringPhysicalPath')]",
+          "[variable('CommerceMinionsPhysicalPath')]"
+        ]
+      }
+    },
+    "UpdateShopsHostname": {
+      "Skip": "[not(parameter('CommerceServicesHostPostfix'))]",
+      "Type": "UpdateShopsHostname",
+      "Params": {
+        "EngineConnectIncludeDir": "[parameter('EngineConnectIncludeDir')]",
+        "CommerceServicesHostPostfix": "[parameter('CommerceServicesHostPostfix')]",
+        "CommerceAuthoringServiceUrl": "[parameter('CommerceAuthoringServiceUrl')]"
+      }
+    },
+    "UpdateShopsPort": {
+      "Skip": "[parameter('CommerceServicesHostPostfix')]",
+      "Type": "UpdateShopsPort",
+      "Params": {
+        "EngineConnectIncludeDir": "[parameter('EngineConnectIncludeDir')]",
+        "CommerceAuthoringServicesPort": "[parameter('CommerceAuthoringServicesPort')]"
+      }
+    }
+  }
+}

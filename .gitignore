@@ -2,3 +2,7 @@
 *.xml
 /Certificates
 /InstallLogs
+*.InstallLog
+
+xp0-configuration.ps1
+xc-configuration.ps1
