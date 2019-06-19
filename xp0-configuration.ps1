@@ -4,7 +4,7 @@ $SitecoreSIFVersion     = "1.2.1"
 $SitecoreSitePrefix     = "sc911"
 $SitecoreSitePostfix    = "dev.local"
 
-$AssetsPath             = "E:\_sitecore-repo"
+$AssetsPath             = "E:\Sitecore-Repo"
 $OpenJdkInstallPath     = "C:\Dev"
 $SolrInstallRootPath    = "E:\SitecoreSolr"
 $WebRoot                = "E:\Inetpub\wwwroot"
@@ -28,7 +28,9 @@ If (-not (Test-Path -Path "$($PrerequisitesAssetFolder)")) {
     New-Item -Path "$($PrerequisitesAssetFolder)" -ItemType Directory | Out-Null
 }
 
-
+If (-not (Test-Path -Path "$($SitecoreExtractedPath)")) {
+    New-Item -Path "$($SitecoreExtractedPath)" -ItemType Directory | Out-Null
+}
 
 ### Installation file names
 $OpenJDKZipFileName             = "java-*-openjdk-*"
@@ -56,7 +58,7 @@ $SolrInstallPath = Join-Path -Path "$($SolrInstallRootPath)" -ChildPath $SolrSer
 ### SQLServer Configurations
 $SqlServerHostName = $env:COMPUTERNAME
 $SqlAdminUser       = "sa"
-$SqlAdminPassword   = "Kimcu@123"
+$SqlAdminPassword   = "[update-with-your-sa-password]"
 
 ### Sitecore configurations
 $SitecoreSite = "$($SitecoreSitePrefix).$($SitecoreSitePostfix)"
