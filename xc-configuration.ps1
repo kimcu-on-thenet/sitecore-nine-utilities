@@ -2,11 +2,33 @@
 
 $SitecoreCommercePackage = Join-Path -Path "$($AssetsPath)" -ChildPath "Sitecore.Commerce.2019.04-3.0.163.zip"
 $CommerceAssetsPath = Join-Path -Path "$($AssetsPath)" -ChildPath "Sitecore-XC"
-If (-not (Test-Path -Path "$($CommerceAssetsPath)")){
-    New-Item -Path "$($CommerceAssetsPath)" -ItemType Directory | Out-Null
-    Expand-Archive -Path "$($SitecoreCommercePackage)" -DestinationPath "$($CommerceAssetsPath)"
+If (Test-Path -Path "$($CommerceAssetsPath)"){
+    Remove-Item -Path "$($CommerceAssetsPath)" -Force -Recurse
 }
+New-Item -Path "$($CommerceAssetsPath)" -ItemType Directory | Out-Null
 $SitecoreCommerceAssetsPath = Resolve-Path -Path $CommerceAssetsPath
+
+###########
+$MergeToolNuget = "msbuild.microsoft.visualstudio.web.targets.14.0.0.3.nupkg"
+$MergeToolZipPackage = Join-Path -Path "$($AssetsPath)" -ChildPath "$($MergeToolNuget).zip"
+If (-not (Test-Path -Path "$($MergeToolZipPackage)")) {
+    $MergeToolNugetPackage = Join-Path -Path "$($AssetsPath)" -ChildPath "$($MergeToolNuget)"
+    If (-not (Test-Path -Path "$($MergeToolNugetPackage)")) {
+        throw "Could not find $($MergeToolNugetPackage)"
+    }
+    Rename-Item -Path $MergeToolNugetPackage -NewName "$($MergeToolNuget).zip"
+}
+
+Expand-Archive -Path $MergeToolZipPackage -DestinationPath "$($SitecoreCommerceAssetsPath)\$($MergeToolNuget)" -Force
+
+Expand-Archive -Path "$($SitecoreCommercePackage)" -DestinationPath "$($CommerceAssetsPath)" -Force
+
+$SitecoreCommerceEngineSDKZip = Get-Item -Path "$($SitecoreCommerceAssetsPath)\Sitecore.Commerce.Engine.SDK.*.zip"
+$SitecoreCommerceEngineSDK = $SitecoreCommerceEngineSDKZip.FullName.Replace(".zip", "")
+If (-not (Test-Path -Path "$($SitecoreCommerceEngineSDK)")){
+    Expand-Archive -Path "$($SitecoreCommerceEngineSDKZip.FullName)" -DestinationPath "$($SitecoreCommerceEngineSDK)" -Force
+}
+###########
 
 $SitecoreCommerceSite = "sxa.storefront.com"
 
@@ -24,7 +46,6 @@ $BizFxSiteName = "$($SitecoreSitePrefix)_bizfx.$($CommerceEnginePostFix)"
 ## Package Path
 $CommerceEngineDacPac = Get-Item -Path "$($SitecoreCommerceAssetsPath)\Sitecore.Commerce.Engine.SDK.*\Sitecore.Commerce.Engine.DB.dacpac"
 $SitecoreCommerceEngineZip = Get-Item -Path "$($SitecoreCommerceAssetsPath)\Sitecore.Commerce.Engine.3*.zip"
-$SitecoreCommerceEngineSDKZip = Get-Item -Path "$($SitecoreCommerceAssetsPath)\Sitecore.Commerce.Engine.SDK.*.zip"
 $SitecoreBizFxZip = Get-Item -Path "$($SitecoreCommerceAssetsPath)\Sitecore.BizFX.2.0.3*.zip"
 $SitecoreCommerceHabitatImagesZip = Get-Item -Path "$($SitecoreCommerceAssetsPath)\Sitecore.Commerce.Habitat.Images-*.zip"
 $SitecoreCommerceAdventureWorksImagesZip = Get-Item -Path "$($SitecoreCommerceAssetsPath)\Adventure Works Images.zip"
@@ -44,7 +65,7 @@ $CommerceMAModuleFullPath = Get-Item -Path "$($SitecoreCommerceAssetsPath)\Sitec
 $CommerceMAForAutomationEngineModuleFullPath = Get-Item -Path "$($SitecoreCommerceAssetsPath)\Sitecore Commerce Marketing Automation for AutomationEngine*.zip"
 $CEConnectModuleFullPath = Get-Item -Path "$($SitecoreCommerceAssetsPath)\Sitecore Commerce Engine Connect*.zip"
 
-$MergeToolNuget = "msbuild.microsoft.visualstudio.web.targets.14.0.0.3.nupkg"
+
 $MergeToolFullPath = "$($SitecoreCommerceAssetsPath)\$($MergeToolNuget)\tools\VSToolsPath\Web\Microsoft.Web.XmlTransform.dll"
 
 $BraintreeAccount = @{
